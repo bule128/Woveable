@@ -1,0 +1,1195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Woveable 💕</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Nunito:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --rose: #d9536b;
+  --rose-light: #f5c6cf;
+  --rose-soft: #fdf0f2;
+  --gold: #c9944a;
+  --gold-light: #f5e4cc;
+  --cream: #fdf8f4;
+  --deep: #2a1a28;
+  --muted: #8a6878;
+  --card: rgba(255,255,255,0.92);
+  --border: rgba(217,83,107,0.15);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Nunito', sans-serif;
+  background: var(--cream);
+  color: var(--deep);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Ambient bg */
+body::after {
+  content: '';
+  position: fixed; inset: 0; z-index: -1;
+  background:
+    radial-gradient(ellipse 55% 45% at 10% 15%, rgba(217,83,107,0.10) 0%, transparent 65%),
+    radial-gradient(ellipse 45% 55% at 90% 80%, rgba(201,148,74,0.09) 0%, transparent 65%),
+    radial-gradient(ellipse 60% 40% at 50% 50%, rgba(245,198,207,0.10) 0%, transparent 70%);
+}
+
+/* NAV */
+header {
+  position: sticky; top: 0; z-index: 200;
+  background: rgba(253,248,244,0.88);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center;
+  justify-content: space-between;
+  padding: 0 36px;
+  height: 62px;
+}
+
+.brand {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.65rem; font-weight: 600;
+  color: var(--rose); letter-spacing: -0.3px;
+  display: flex; align-items: center; gap: 8px;
+}
+.brand-heart { font-size: 1.1rem; animation: pulse 2.4s ease-in-out infinite; }
+@keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.18)} }
+
+nav { display: flex; gap: 4px; }
+nav button {
+  padding: 7px 16px; border-radius: 50px; border: none;
+  background: transparent; color: var(--muted);
+  font-family: 'Nunito', sans-serif; font-size: 0.83rem; font-weight: 600;
+  cursor: pointer; transition: all 0.22s; white-space: nowrap;
+}
+nav button:hover { background: var(--rose-soft); color: var(--rose); }
+nav button.active { background: var(--rose); color: #fff; }
+
+/* TOAST */
+#toast {
+  position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(80px);
+  background: var(--deep); color: #fff;
+  padding: 10px 22px; border-radius: 50px; font-size: 0.85rem;
+  transition: transform 0.35s cubic-bezier(.34,1.56,.64,1);
+  z-index: 9999; pointer-events: none; white-space: nowrap;
+}
+#toast.show { transform: translateX(-50%) translateY(0); }
+
+/* FLOATING HEARTS */
+#fh { position: fixed; inset: 0; pointer-events: none; z-index: 9998; overflow: hidden; }
+.fh-el {
+  position: absolute; bottom: -40px;
+  animation: riseHeart 4.2s ease-in forwards;
+  font-size: 1.1rem; opacity: 0;
+}
+@keyframes riseHeart {
+  0% { transform: translateY(0) rotate(-8deg); opacity: 1; }
+  100% { transform: translateY(-100vh) rotate(20deg); opacity: 0; }
+}
+
+/* SECTIONS */
+.page { display: none; padding: 36px 32px; max-width: 1040px; margin: 0 auto; }
+.page.active { display: block; animation: fadeUp 0.38s ease; }
+@keyframes fadeUp { from { opacity:0; transform:translateY(18px); } to { opacity:1; transform:none; } }
+
+.pg-title { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 600; margin-bottom: 4px; }
+.pg-title em { color: var(--rose); font-style: italic; }
+.pg-sub { color: var(--muted); font-size: 0.88rem; margin-bottom: 28px; }
+
+/* LOADING SCREEN */
+#loadScreen {
+  position: fixed; inset: 0; z-index: 9999;
+  background: var(--cream);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 12px;
+}
+.load-brand {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2.4rem; font-weight: 600; color: var(--rose);
+}
+.load-spinner {
+  width: 32px; height: 32px;
+  border: 3px solid var(--rose-light);
+  border-top-color: var(--rose);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ====== COLLAGE ====== */
+.upload-zone {
+  border: 2.5px dashed var(--rose-light);
+  border-radius: 22px; padding: 44px 28px;
+  text-align: center; background: rgba(255,255,255,0.55);
+  cursor: pointer; transition: all 0.28s; margin-bottom: 24px;
+  position: relative;
+}
+.upload-zone:hover, .upload-zone.drag-over {
+  border-color: var(--rose);
+  background: rgba(217,83,107,0.04);
+  transform: scale(1.008);
+}
+.upload-zone input {
+  position: absolute; inset: 0; opacity: 0;
+  cursor: pointer; width: 100%; height: 100%;
+}
+.upload-icon { font-size: 2.6rem; margin-bottom: 10px; }
+.upload-zone h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.25rem; margin-bottom: 4px; }
+.upload-zone p { color: var(--muted); font-size: 0.82rem; }
+
+.layout-bar { display: flex; gap: 8px; margin-bottom: 18px; flex-wrap: wrap; align-items: center; }
+.layout-bar span { font-size: 0.78rem; color: var(--muted); margin-right: 4px; }
+.lb-btn {
+  padding: 6px 14px; border-radius: 10px;
+  border: 2px solid var(--rose-light); background: #fff;
+  font-size: 0.78rem; cursor: pointer; transition: all 0.2s; color: var(--deep);
+}
+.lb-btn.active, .lb-btn:hover { border-color: var(--rose); background: var(--rose); color: #fff; }
+
+.media-count-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 14px;
+}
+.media-count { font-size: 0.82rem; color: var(--muted); }
+.clear-btn {
+  font-size: 0.78rem; padding: 5px 12px; border-radius: 8px;
+  border: 1.5px solid var(--rose-light); background: transparent;
+  color: var(--rose); cursor: pointer; transition: all 0.2s;
+}
+.clear-btn:hover { background: var(--rose); color: #fff; }
+
+#collageGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+  gap: 10px; margin-bottom: 20px;
+}
+
+.ci {
+  position: relative; border-radius: 14px;
+  overflow: hidden; aspect-ratio: 1;
+  box-shadow: 0 3px 16px rgba(42,26,40,0.12);
+  transition: all 0.28s; cursor: pointer; background: var(--rose-light);
+}
+.ci:hover { transform: scale(1.04) rotate(0.8deg); z-index: 2; box-shadow: 0 8px 28px rgba(217,83,107,0.22); }
+.ci img, .ci video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.ci-del {
+  position: absolute; top: 6px; right: 6px;
+  background: rgba(255,255,255,0.9); border: none; border-radius: 50%;
+  width: 24px; height: 24px; font-size: 0.7rem; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; transition: opacity 0.2s; color: var(--rose);
+}
+.ci:hover .ci-del { opacity: 1; }
+.ci-badge {
+  position: absolute; bottom: 6px; left: 6px;
+  background: rgba(0,0,0,0.5); color: #fff;
+  font-size: 0.62rem; padding: 2px 6px; border-radius: 4px;
+}
+
+/* Polaroid layout */
+.layout-polaroid .ci {
+  border-radius: 6px; padding: 10px 10px 32px;
+  background: #fff; aspect-ratio: auto;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.14);
+}
+.layout-polaroid .ci img, .layout-polaroid .ci video {
+  border-radius: 3px; height: 140px; width: 100%;
+}
+/* Heart layout */
+.layout-hearts .ci { border-radius: 50% 50% 50% 50% / 58% 58% 42% 42%; }
+/* Masonry */
+.layout-masonry .ci:nth-child(3n+2) { aspect-ratio: auto; min-height: 220px; }
+
+.empty-state { text-align: center; padding: 48px 20px; color: #c0a0b0; }
+.empty-state .es-icon { font-size: 2.8rem; margin-bottom: 10px; }
+.empty-state p { font-size: 0.88rem; }
+
+/* ====== GAMES ====== */
+.games-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(255px,1fr)); gap: 18px; }
+.game-card {
+  background: var(--card); border-radius: 22px; padding: 26px;
+  cursor: pointer; border: 2px solid transparent;
+  box-shadow: 0 3px 18px rgba(42,26,40,0.07);
+  transition: all 0.28s; position: relative; overflow: hidden;
+}
+.game-card:hover { border-color: var(--rose); transform: translateY(-4px); box-shadow: 0 10px 32px rgba(217,83,107,0.16); }
+.ge { font-size: 2.2rem; margin-bottom: 10px; display: block; }
+.game-card h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.08rem; font-weight: 600; margin-bottom: 5px; }
+.game-card p { font-size: 0.8rem; color: var(--muted); line-height: 1.55; }
+.game-tag {
+  display: inline-block; margin-top: 10px;
+  padding: 3px 10px; border-radius: 50px;
+  background: var(--rose-light); color: var(--rose);
+  font-size: 0.7rem; font-weight: 600;
+}
+
+/* ====== MODAL ====== */
+.overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(42,26,40,0.52); backdrop-filter: blur(7px);
+  z-index: 500; align-items: center; justify-content: center;
+  padding: 20px;
+}
+.overlay.open { display: flex; }
+.modal {
+  background: var(--cream); border-radius: 26px;
+  padding: 38px 36px; max-width: 500px; width: 100%;
+  max-height: 88vh; overflow-y: auto;
+  position: relative;
+  animation: popIn 0.3s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes popIn { from{transform:scale(0.82);opacity:0} to{transform:scale(1);opacity:1} }
+.modal-close {
+  position: absolute; top: 14px; right: 14px;
+  background: var(--rose-light); border: none; border-radius: 50%;
+  width: 32px; height: 32px; font-size: 0.95rem; cursor: pointer;
+  color: var(--rose); display: flex; align-items: center; justify-content: center;
+  transition: background 0.2s;
+}
+.modal-close:hover { background: var(--rose); color: #fff; }
+.modal h2 { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 600; margin-bottom: 18px; }
+
+.btn-primary {
+  display: inline-block; padding: 10px 24px;
+  background: var(--rose); color: #fff; border: none; border-radius: 50px;
+  font-family: 'Nunito', sans-serif; font-size: 0.88rem; font-weight: 600;
+  cursor: pointer; transition: all 0.2s; margin-top: 14px;
+}
+.btn-primary:hover { background: #c04060; transform: scale(1.03); }
+.btn-outline {
+  display: inline-block; padding: 9px 22px;
+  border: 2px solid var(--rose); background: transparent;
+  color: var(--rose); border-radius: 50px;
+  font-family: 'Nunito', sans-serif; font-size: 0.86rem; font-weight: 600;
+  cursor: pointer; transition: all 0.2s; margin-top: 14px;
+}
+.btn-outline:hover { background: var(--rose); color: #fff; }
+
+/* WYR */
+.wyr-grid { display: grid; grid-template-columns: 1fr auto 1fr; gap: 12px; align-items: center; margin-top: 14px; }
+.wyr-opt {
+  padding: 18px 14px; border-radius: 16px; border: 2.5px solid var(--rose-light);
+  background: #fff; cursor: pointer; font-size: 0.9rem; text-align: center;
+  transition: all 0.22s; line-height: 1.45; color: var(--deep); font-family: 'Nunito', sans-serif;
+}
+.wyr-opt:hover { border-color: var(--rose); background: var(--rose-soft); }
+.wyr-opt.selected { border-color: var(--rose); background: var(--rose); color: #fff; }
+.wyr-vs { font-family: 'Cormorant Garamond', serif; font-style: italic; color: var(--rose); font-size: 0.95rem; text-align: center; }
+
+/* Quiz */
+.quiz-q { font-size: 1rem; font-weight: 600; margin-bottom: 14px; line-height: 1.5; }
+.quiz-opts { display: flex; flex-direction: column; gap: 9px; }
+.quiz-opt {
+  padding: 11px 16px; border-radius: 13px; border: 2px solid var(--rose-light);
+  background: #fff; cursor: pointer; text-align: left; font-family: 'Nunito', sans-serif;
+  font-size: 0.88rem; transition: all 0.2s; color: var(--deep);
+}
+.quiz-opt:hover { border-color: var(--rose); background: var(--rose-soft); }
+.quiz-opt.correct { border-color: #2cb57e; background: #e7f9f1; color: #166a44; }
+.quiz-opt.wrong { border-color: var(--rose); background: #fde8ec; color: var(--rose); }
+.score-big { font-family: 'Cormorant Garamond', serif; font-size: 2.6rem; color: var(--rose); text-align: center; margin: 16px 0; }
+
+/* TOD */
+.tod-toggle { display: flex; gap: 8px; margin-bottom: 18px; }
+.tod-btn {
+  flex: 1; padding: 10px; border-radius: 13px;
+  border: 2px solid var(--rose-light); background: #fff;
+  font-family: 'Nunito', sans-serif; font-weight: 600; font-size: 0.88rem;
+  cursor: pointer; transition: all 0.2s; color: var(--deep);
+}
+.tod-btn.active { border-color: var(--rose); background: var(--rose); color: #fff; }
+.tod-card {
+  background: linear-gradient(135deg, var(--rose-soft), #fff);
+  border-radius: 18px; padding: 26px; text-align: center;
+  font-size: 1.02rem; line-height: 1.65;
+  border: 2px solid var(--rose-light); min-height: 110px;
+  display: flex; align-items: center; justify-content: center; color: var(--deep);
+}
+
+/* Countdown */
+.cd-timer { font-family: 'Cormorant Garamond', serif; font-size: 4.5rem; color: var(--rose); text-align: center; margin: 10px 0; line-height: 1; }
+.cd-topic { font-size: 1.05rem; font-weight: 600; color: var(--rose); text-align: center; margin: 10px 0; }
+
+/* Timeline */
+.timeline { padding-left: 30px; position: relative; margin-top: 14px; }
+.timeline::before { content:''; position:absolute; left:9px; top:0; bottom:0; width:2px; background:linear-gradient(var(--rose), var(--gold)); }
+.tl-item { position: relative; margin-bottom: 20px; }
+.tl-item::before { content:'💕'; position:absolute; left:-26px; top:0; font-size:0.8rem; }
+.tl-date { font-size:0.72rem; color:var(--rose); font-weight:600; letter-spacing:0.4px; text-transform:uppercase; margin-bottom:3px; }
+.tl-text { background:#fff; border-radius:12px; padding:12px 14px; font-size:0.88rem; box-shadow:0 2px 10px rgba(42,26,40,0.07); line-height:1.5; }
+.mem-form { display:flex; gap:8px; margin-bottom:18px; flex-wrap:wrap; }
+.mem-form input {
+  flex:1; min-width:110px;
+  padding:9px 14px; border-radius:11px;
+  border:2px solid var(--rose-light); background:#fff;
+  font-family:'Nunito',sans-serif; font-size:0.88rem; color:var(--deep); outline:none;
+}
+.mem-form input:focus { border-color:var(--rose); }
+
+/* Bottle */
+.bottle-wrap { display:flex; flex-direction:column; align-items:center; gap:18px; }
+.bottle-result { font-family:'Cormorant Garamond',serif; font-size:1.2rem; color:var(--rose); text-align:center; min-height:32px; }
+
+/* ====== QUESTIONS ====== */
+.q-cats { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:22px; }
+.q-cat {
+  padding:7px 16px; border-radius:50px; border:2px solid var(--rose-light);
+  background:#fff; cursor:pointer; font-size:0.8rem; font-weight:600;
+  transition:all 0.2s; color:var(--deep);
+}
+.q-cat.active, .q-cat:hover { border-color:var(--rose); background:var(--rose); color:#fff; }
+
+.q-card {
+  background:#fff; border-radius:22px; padding:40px 36px;
+  text-align:center; min-height:200px;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  box-shadow:0 5px 28px rgba(42,26,40,0.09); margin-bottom:18px; position:relative; overflow:hidden;
+}
+.q-card::before {
+  content:'"'; font-family:'Cormorant Garamond',serif;
+  font-size:9rem; position:absolute; top:-30px; left:14px;
+  color:var(--rose-light); opacity:0.6; line-height:1;
+}
+.q-emoji { font-size:2rem; margin-bottom:12px; }
+.q-text {
+  font-family:'Cormorant Garamond',serif; font-size:1.28rem;
+  line-height:1.6; color:var(--deep); position:relative; z-index:1; max-width:360px;
+}
+.q-actions { display:flex; gap:10px; justify-content:center; }
+.q-meta { text-align:center; font-size:0.78rem; color:#c0a0b0; margin-top:12px; }
+
+/* ====== NOTES ====== */
+.note-compose {
+  background:#fff; border-radius:20px; padding:22px;
+  box-shadow:0 3px 18px rgba(42,26,40,0.07); margin-bottom:22px;
+}
+.note-compose textarea {
+  width:100%; min-height:95px; border:2px solid var(--rose-light);
+  border-radius:13px; padding:12px 14px;
+  font-family:'Nunito',sans-serif; font-size:0.9rem; resize:none;
+  outline:none; color:var(--deep); transition:border-color 0.2s;
+}
+.note-compose textarea:focus { border-color:var(--rose); }
+.note-row { display:flex; gap:8px; margin-top:10px; align-items:center; }
+.cp { display:flex; gap:5px; }
+.cd {
+  width:20px; height:20px; border-radius:50%; cursor:pointer;
+  border:2.5px solid transparent; transition:border-color 0.2s; flex-shrink:0;
+}
+.cd.sel, .cd:hover { border-color:var(--deep); }
+
+.notes-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(195px,1fr)); gap:14px; margin-bottom:22px; }
+.note-card {
+  border-radius:18px; padding:20px 18px; min-height:150px;
+  box-shadow:0 3px 18px rgba(42,26,40,0.10);
+  cursor:pointer; transition:transform 0.28s;
+  display:flex; flex-direction:column; justify-content:space-between;
+  position:relative;
+}
+.note-card:hover { transform:rotate(1.2deg) scale(1.03); }
+.note-content { font-size:0.86rem; line-height:1.55; color:var(--deep); flex:1; }
+.note-date { font-size:0.68rem; color:rgba(42,26,40,0.45); margin-top:8px; }
+.note-del {
+  position:absolute; top:9px; right:9px;
+  background:rgba(255,255,255,0.75); border:none; border-radius:50%;
+  width:22px; height:22px; font-size:0.65rem; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  opacity:0; transition:opacity 0.2s; color:var(--rose);
+}
+.note-card:hover .note-del { opacity:1; }
+
+@media(max-width:600px){
+  header { padding:0 16px; }
+  nav button { padding:6px 10px; font-size:0.75rem; }
+  .page { padding:22px 14px; }
+  .pg-title { font-size:1.55rem; }
+  .wyr-grid { grid-template-columns:1fr; }
+  .modal { padding:26px 18px; }
+}
+</style>
+</head>
+<body>
+
+<!-- LOAD SCREEN -->
+<div id="loadScreen">
+  <div class="load-brand">Woveable 💕</div>
+  <div class="load-spinner"></div>
+  <p style="font-size:0.82rem;color:var(--muted);margin-top:4px">Loading your love story…</p>
+</div>
+
+<div id="fh"></div>
+<div id="toast">✨ Saved!</div>
+
+<header>
+  <div class="brand"><span class="brand-heart">💕</span> Woveable</div>
+  <nav>
+    <button class="active" onclick="showPage('collage')">📸 Our Story</button>
+    <button onclick="showPage('games')">🎮 Play</button>
+    <button onclick="showPage('questions')">💬 Discover</button>
+    <button onclick="showPage('notes')">💌 Notes</button>
+  </nav>
+</header>
+
+<!-- ===== COLLAGE PAGE ===== -->
+<div id="collage" class="page active">
+  <h2 class="pg-title">Our <em>Story</em></h2>
+  <p class="pg-sub">Upload photos & videos — your memories are saved forever here 💾</p>
+
+  <div class="layout-bar">
+    <span>Layout:</span>
+    <button class="lb-btn active" onclick="setLayout('grid',this)">🔲 Grid</button>
+    <button class="lb-btn" onclick="setLayout('masonry',this)">🎨 Mosaic</button>
+    <button class="lb-btn" onclick="setLayout('hearts',this)">💝 Hearts</button>
+    <button class="lb-btn" onclick="setLayout('polaroid',this)">📷 Polaroid</button>
+  </div>
+
+  <div class="upload-zone" id="uploadZone">
+    <input type="file" id="fileIn" accept="image/*,video/*" multiple onchange="handleFiles(this.files)">
+    <div class="upload-icon">🌸</div>
+    <h3>Drop your memories here</h3>
+    <p>Photos &amp; videos • Tap or drag &amp; drop • Saved permanently 💾</p>
+  </div>
+
+  <div class="media-count-bar">
+    <span class="media-count" id="mediaCount">0 memories stored</span>
+    <button class="clear-btn" onclick="clearAllMedia()" id="clearBtn" style="display:none">Clear All</button>
+  </div>
+
+  <div id="collageGrid" class=""></div>
+  <div id="collageEmpty" class="empty-state">
+    <div class="es-icon">🌷</div>
+    <p>Your beautiful memories will appear here.<br>Upload your first photo or video!</p>
+  </div>
+</div>
+
+<!-- ===== GAMES PAGE ===== -->
+<div id="games" class="page">
+  <h2 class="pg-title">Let's <em>Play</em></h2>
+  <p class="pg-sub">Games to make you laugh, blush, and fall even more in love 🎉</p>
+  <div class="games-grid">
+    <div class="game-card" onclick="openGame('wyr')">
+      <span class="ge">🤔</span>
+      <h3>Would You Rather?</h3>
+      <p>Make tricky choices — see if you think alike or totally disagree!</p>
+      <span class="game-tag">💬 Discussion</span>
+    </div>
+    <div class="game-card" onclick="openGame('quiz')">
+      <span class="ge">🧠</span>
+      <h3>How Well Do You Know Me?</h3>
+      <p>Answer questions about each other and score points!</p>
+      <span class="game-tag">🏆 Competitive</span>
+    </div>
+    <div class="game-card" onclick="openGame('tod')">
+      <span class="ge">🎲</span>
+      <h3>Truth or Dare</h3>
+      <p>Romantic truths and sweet dares — keep it fun or spice it up!</p>
+      <span class="game-tag">🔥 Fun</span>
+    </div>
+    <div class="game-card" onclick="openGame('bottle')">
+      <span class="ge">🍾</span>
+      <h3>Spin the Bottle</h3>
+      <p>Spin and whoever it lands on gets a romantic challenge!</p>
+      <span class="game-tag">😂 Silly</span>
+    </div>
+    <div class="game-card" onclick="openGame('countdown')">
+      <span class="ge">⏰</span>
+      <h3>60-Second Love Test</h3>
+      <p>Name as many things about each other as you can before time runs out!</p>
+      <span class="game-tag">⚡ Fast</span>
+    </div>
+    <div class="game-card" onclick="openGame('memory')">
+      <span class="ge">📖</span>
+      <h3>Memory Lane</h3>
+      <p>Build your love timeline — milestones saved forever 💾</p>
+      <span class="game-tag">❤️ Sentimental</span>
+    </div>
+  </div>
+</div>
+
+<!-- ===== QUESTIONS PAGE ===== -->
+<div id="questions" class="page">
+  <h2 class="pg-title"><em>Deep Dive</em> Questions</h2>
+  <p class="pg-sub">From silly to soul-searching — explore each other fully 💫</p>
+  <div class="q-cats">
+    <button class="q-cat active" onclick="setQCat('fun',this)">😂 Fun</button>
+    <button class="q-cat" onclick="setQCat('deep',this)">🌊 Deep</button>
+    <button class="q-cat" onclick="setQCat('romantic',this)">💕 Romantic</button>
+    <button class="q-cat" onclick="setQCat('future',this)">🔮 Future</button>
+    <button class="q-cat" onclick="setQCat('spicy',this)">😈 Spicy</button>
+  </div>
+  <div class="q-card" id="qCard">
+    <div class="q-emoji" id="qEmoji">😂</div>
+    <div class="q-text" id="qText">Loading…</div>
+  </div>
+  <div class="q-actions">
+    <button class="btn-outline" onclick="prevQ()">← Back</button>
+    <button class="btn-primary" onclick="nextQ()">Next →</button>
+  </div>
+  <p class="q-meta">Question <span id="qNum">1</span> of <span id="qTotal">1</span></p>
+</div>
+
+<!-- ===== NOTES PAGE ===== -->
+<div id="notes" class="page">
+  <h2 class="pg-title">Love <em>Notes</em></h2>
+  <p class="pg-sub">Leave sweet messages for each other — saved forever 💌</p>
+  <div class="note-compose">
+    <textarea id="noteText" placeholder="Write something sweet… 🌹"></textarea>
+    <div class="note-row">
+      <div class="cp" id="cp">
+        <div class="cd sel" style="background:#fde8ec" data-c="#fde8ec" onclick="selColor(this)"></div>
+        <div class="cd" style="background:#ddeeff" data-c="#ddeeff" onclick="selColor(this)"></div>
+        <div class="cd" style="background:#fef9e0" data-c="#fef9e0" onclick="selColor(this)"></div>
+        <div class="cd" style="background:#e8f9ec" data-c="#e8f9ec" onclick="selColor(this)"></div>
+        <div class="cd" style="background:#f0e8fd" data-c="#f0e8fd" onclick="selColor(this)"></div>
+        <div class="cd" style="background:#fff3e0" data-c="#fff3e0" onclick="selColor(this)"></div>
+      </div>
+      <button class="btn-primary" style="margin-top:0" onclick="addNote()">Post 💕</button>
+    </div>
+  </div>
+  <div class="notes-grid" id="notesGrid"></div>
+  <div id="notesEmpty" class="empty-state">
+    <div class="es-icon">💌</div>
+    <p>No notes yet — write your first love note above! 🌹</p>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="overlay" id="overlay" onclick="overlayClick(event)">
+  <div class="modal" id="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div id="modalInner"></div>
+  </div>
+</div>
+
+<script>
+// =====================================================================
+// DB — IndexedDB for persistent storage of all user data
+// =====================================================================
+let db;
+const DB_NAME = 'WoveableDB';
+const DB_VER = 2;
+
+function openDB() {
+  return new Promise((res, rej) => {
+    const req = indexedDB.open(DB_NAME, DB_VER);
+    req.onupgradeneeded = e => {
+      const d = e.target.result;
+      if (!d.objectStoreNames.contains('media')) {
+        d.createObjectStore('media', { keyPath: 'id', autoIncrement: true });
+      }
+      if (!d.objectStoreNames.contains('notes')) {
+        d.createObjectStore('notes', { keyPath: 'id', autoIncrement: true });
+      }
+      if (!d.objectStoreNames.contains('memories')) {
+        d.createObjectStore('memories', { keyPath: 'id', autoIncrement: true });
+      }
+    };
+    req.onsuccess = e => { db = e.target.result; res(db); };
+    req.onerror = () => rej(req.error);
+  });
+}
+
+function dbGetAll(store) {
+  return new Promise((res, rej) => {
+    const tx = db.transaction(store, 'readonly');
+    const req = tx.objectStore(store).getAll();
+    req.onsuccess = () => res(req.result);
+    req.onerror = () => rej(req.error);
+  });
+}
+
+function dbAdd(store, data) {
+  return new Promise((res, rej) => {
+    const tx = db.transaction(store, 'readwrite');
+    const req = tx.objectStore(store).add(data);
+    req.onsuccess = () => res(req.result);
+    req.onerror = () => rej(req.error);
+  });
+}
+
+function dbDelete(store, id) {
+  return new Promise((res, rej) => {
+    const tx = db.transaction(store, 'readwrite');
+    const req = tx.objectStore(store).delete(id);
+    req.onsuccess = () => res();
+    req.onerror = () => rej(req.error);
+  });
+}
+
+function dbClear(store) {
+  return new Promise((res, rej) => {
+    const tx = db.transaction(store, 'readwrite');
+    const req = tx.objectStore(store).clear();
+    req.onsuccess = () => res();
+    req.onerror = () => rej(req.error);
+  });
+}
+
+// =====================================================================
+// APP STATE
+// =====================================================================
+let mediaItems = [];   // { id, type, dataURL, name, addedAt }
+let notesData = [];    // { id, text, color, date }
+let memoriesData = []; // { id, date, text }
+let currentLayout = 'grid';
+let noteColor = '#fde8ec';
+let qCat = 'fun';
+let qIdx = 0;
+
+// =====================================================================
+// INIT
+// =====================================================================
+async function init() {
+  await openDB();
+  mediaItems = await dbGetAll('media');
+  notesData = await dbGetAll('notes');
+  memoriesData = await dbGetAll('memories');
+  memoriesData.sort((a,b) => new Date(a.date) - new Date(b.date));
+  renderCollage();
+  renderNotes();
+  loadQ();
+  document.getElementById('loadScreen').style.display = 'none';
+}
+
+init().catch(() => {
+  document.getElementById('loadScreen').style.display = 'none';
+  toast('⚠️ Storage unavailable — changes won\'t persist');
+});
+
+// =====================================================================
+// TABS
+// =====================================================================
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('nav button').forEach((b,i) => {
+    b.classList.toggle('active', ['collage','games','questions','notes'][i] === id);
+  });
+  if (id === 'notes') renderNotes();
+}
+
+// =====================================================================
+// TOAST
+// =====================================================================
+function toast(msg = '✨ Saved!') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+// =====================================================================
+// HEARTS
+// =====================================================================
+function spawnHearts(n = 7) {
+  const c = document.getElementById('fh');
+  const em = ['💕','❤️','🌹','✨','💫','💖','🌸','💗','🥰'];
+  for (let i = 0; i < n; i++) {
+    setTimeout(() => {
+      const h = document.createElement('div');
+      h.className = 'fh-el';
+      h.textContent = em[Math.floor(Math.random() * em.length)];
+      h.style.left = 8 + Math.random() * 84 + '%';
+      h.style.fontSize = 0.8 + Math.random() * 1.1 + 'rem';
+      h.style.animationDelay = Math.random() * 0.4 + 's';
+      c.appendChild(h);
+      setTimeout(() => h.remove(), 4800);
+    }, i * 110);
+  }
+}
+
+// =====================================================================
+// COLLAGE
+// =====================================================================
+async function handleFiles(files) {
+  const arr = Array.from(files);
+  for (const file of arr) {
+    const dataURL = await fileToDataURL(file);
+    const item = {
+      type: file.type.startsWith('video') ? 'video' : 'image',
+      dataURL,
+      name: file.name,
+      addedAt: Date.now()
+    };
+    const id = await dbAdd('media', item);
+    item.id = id;
+    mediaItems.push(item);
+  }
+  renderCollage();
+  spawnHearts();
+  toast('📸 ' + arr.length + ' memor' + (arr.length === 1 ? 'y' : 'ies') + ' saved!');
+}
+
+function fileToDataURL(file) {
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = e => res(e.target.result);
+    r.onerror = rej;
+    r.readAsDataURL(file);
+  });
+}
+
+async function deleteMedia(id) {
+  await dbDelete('media', id);
+  mediaItems = mediaItems.filter(m => m.id !== id);
+  renderCollage();
+}
+
+async function clearAllMedia() {
+  if (!confirm('Remove all photos & videos? This cannot be undone.')) return;
+  await dbClear('media');
+  mediaItems = [];
+  renderCollage();
+  toast('🗑️ All media cleared');
+}
+
+function setLayout(layout, btn) {
+  currentLayout = layout;
+  document.querySelectorAll('.lb-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderCollage();
+}
+
+function renderCollage() {
+  const grid = document.getElementById('collageGrid');
+  const empty = document.getElementById('collageEmpty');
+  const count = document.getElementById('mediaCount');
+  const clearBtn = document.getElementById('clearBtn');
+
+  grid.innerHTML = '';
+  const n = mediaItems.length;
+  empty.style.display = n ? 'none' : 'block';
+  clearBtn.style.display = n ? 'inline-block' : 'none';
+  count.textContent = n + ' memor' + (n === 1 ? 'y' : 'ies') + ' stored';
+
+  grid.className = currentLayout === 'polaroid' ? 'layout-polaroid' :
+                   currentLayout === 'hearts'   ? 'layout-hearts'   :
+                   currentLayout === 'masonry'  ? 'layout-masonry'  : '';
+
+  const cols = {
+    grid: 'repeat(auto-fill,minmax(155px,1fr))',
+    masonry: 'repeat(auto-fill,minmax(140px,1fr))',
+    hearts: 'repeat(auto-fill,minmax(175px,1fr))',
+    polaroid: 'repeat(auto-fill,minmax(190px,1fr))',
+  };
+  grid.style.display = 'grid';
+  grid.style.gridTemplateColumns = cols[currentLayout];
+  grid.style.gap = '10px';
+
+  mediaItems.forEach((m, i) => {
+    const div = document.createElement('div');
+    div.className = 'ci';
+    if (currentLayout === 'polaroid') {
+      div.style.cssText = 'border-radius:6px;padding:10px 10px 34px;background:#fff;aspect-ratio:auto;box-shadow:0 5px 20px rgba(0,0,0,0.14);transform:rotate(' + ((i%2===0?1:-1)*((i%3)+0.4)) + 'deg)';
+    }
+    if (currentLayout === 'masonry' && i%3===1) {
+      div.style.gridRow = 'span 2';
+      div.style.aspectRatio = 'auto';
+      div.style.minHeight = '220px';
+    }
+
+    if (m.type === 'video') {
+      const v = document.createElement('video');
+      v.src = m.dataURL; v.controls = true; v.muted = true;
+      v.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block;';
+      div.appendChild(v);
+      const badge = document.createElement('span');
+      badge.className = 'ci-badge'; badge.textContent = '▶ Video';
+      div.appendChild(badge);
+    } else {
+      const img = document.createElement('img');
+      img.src = m.dataURL; img.alt = m.name; img.loading = 'lazy';
+      div.appendChild(img);
+    }
+
+    const del = document.createElement('button');
+    del.className = 'ci-del'; del.innerHTML = '✕';
+    del.onclick = e => { e.stopPropagation(); deleteMedia(m.id); };
+    div.appendChild(del);
+    grid.appendChild(div);
+  });
+}
+
+const uz = document.getElementById('uploadZone');
+uz.addEventListener('dragover', e => { e.preventDefault(); uz.classList.add('drag-over'); });
+uz.addEventListener('dragleave', () => uz.classList.remove('drag-over'));
+uz.addEventListener('drop', e => {
+  e.preventDefault(); uz.classList.remove('drag-over');
+  handleFiles(e.dataTransfer.files);
+});
+
+// =====================================================================
+// GAMES
+// =====================================================================
+const WYR = [
+  {a:'A romantic candlelit dinner at home', b:'A surprise date anywhere in the world'},
+  {a:'Never fight again', b:'Always make up in the most passionate way'},
+  {a:'Travel the world together for a year', b:'Build your dream home together'},
+  {a:'Win the lottery but spend it all together', b:'Be broke but always happy together'},
+  {a:'Know exactly what your partner is thinking', b:'Always know how they\'re feeling'},
+  {a:'Re-live your first date every year', b:'Create a brand-new adventure every anniversary'},
+  {a:'Be serenaded in public', b:'Receive a heartfelt handwritten letter'},
+  {a:'Live in a tiny beach hut forever', b:'Live in a city penthouse forever'},
+  {a:'Cook every meal for your partner', b:'Have your partner always cook for you'},
+  {a:'Have date nights every week', b:'Take a big trip together every year'},
+];
+
+const QUIZ = [
+  {q:"What's my absolute favourite food?", opts:['Pizza','Sushi','Pasta','Tacos']},
+  {q:"What's my go-to comfort movie genre?", opts:['Rom-com','Action','Horror','Documentary']},
+  {q:"If I could visit one place right now?", opts:['Paris','Bali','New York','Tokyo']},
+  {q:"What's my love language?", opts:['Words of affirmation','Physical touch','Acts of service','Quality time']},
+  {q:"What do I do first thing in the morning?", opts:['Check my phone','Make coffee','Exercise','Brush teeth']},
+  {q:"When I\'m stressed, I prefer to…", opts:['Talk it out','Have alone time','Watch TV','Go for a walk']},
+];
+
+const TRUTHS = [
+  "What's the first thing you noticed about me?",
+  "What's your favourite memory of us together?",
+  "What song reminds you of me and why?",
+  "When did you first realise you loved me?",
+  "What's your favourite physical feature of mine?",
+  "Describe our perfect day together.",
+  "What's something I do that makes your whole day better?",
+  "What's one thing you want us to do that we haven't done yet?",
+  "What quality of mine do you admire the most?",
+  "What does home feel like to you — and do I feel like home?",
+];
+
+const DARES = [
+  "Give your partner a 60-second shoulder massage.",
+  "Stare into each other's eyes without laughing for 30 seconds.",
+  "Whisper something you love about them in their ear.",
+  "Re-enact your first meeting exactly as you remember it.",
+  "Slow dance together for a full minute — no music needed!",
+  "Tell them 3 things you find incredibly attractive about them.",
+  "Give them the best hug you've ever given.",
+  "Serenade them with any song — even if you can't sing!",
+  "Feed each other something sweet with eyes closed.",
+  "Write their name on their arm with your fingertip — slowly.",
+];
+
+const COUNTDOWN_TOPICS = [
+  "Foods they love","Things they say all the time","Their hobbies",
+  "Places they want to visit","Movies they've watched 3+ times",
+  "Things that make them laugh","Their pet peeves","Their childhood memories",
+  "Songs that remind them of something","Their favourite people",
+];
+
+let wyrIdx = 0, quizIdx = 0, quizScore = 0, quizAnswered = false;
+let todMode = 'truth', countdownRunning = false;
+let bottleAngle = 0, bottleSpinning = false;
+
+function openGame(g) {
+  document.getElementById('overlay').classList.add('open');
+  const el = document.getElementById('modalInner');
+  if (g === 'wyr') { wyrIdx = Math.floor(Math.random()*WYR.length); renderWYR(el); }
+  else if (g === 'quiz') { quizIdx=0; quizScore=0; quizAnswered=false; renderQuiz(el); }
+  else if (g === 'tod') { renderTOD(el); }
+  else if (g === 'bottle') { bottleAngle=0; bottleSpinning=false; renderBottle(el); }
+  else if (g === 'countdown') { renderCountdown(el); }
+  else if (g === 'memory') { renderMemoryGame(el); }
+}
+
+function renderWYR(el) {
+  const q = WYR[wyrIdx];
+  el.innerHTML = `<h2>🤔 Would You Rather?</h2>
+    <p style="color:var(--muted);font-size:0.85rem;margin-bottom:16px">Pick your answer — then reveal together!</p>
+    <div class="wyr-grid">
+      <button class="wyr-opt" id="wA" onclick="wyrPick('A')">${q.a}</button>
+      <div class="wyr-vs">or</div>
+      <button class="wyr-opt" id="wB" onclick="wyrPick('B')">${q.b}</button>
+    </div>
+    <div style="text-align:center">
+      <button class="btn-primary" onclick="wyrNext()">Next 🔀</button>
+    </div>`;
+}
+function wyrPick(c) {
+  document.getElementById('wA').classList.toggle('selected', c==='A');
+  document.getElementById('wB').classList.toggle('selected', c==='B');
+}
+function wyrNext() {
+  wyrIdx = (wyrIdx+1) % WYR.length;
+  renderWYR(document.getElementById('modalInner'));
+}
+
+function renderQuiz(el) {
+  if (quizIdx >= QUIZ.length) {
+    el.innerHTML = `<h2>🧠 Quiz Complete!</h2>
+      <div class="score-big">${quizScore} / ${QUIZ.length} 🎉</div>
+      <p style="text-align:center;color:var(--muted);font-size:0.88rem">${quizScore>=4?'You know each other so well! 💕':'Keep exploring each other! 🌸'}</p>
+      <div style="text-align:center"><button class="btn-primary" onclick="quizIdx=0;quizScore=0;quizAnswered=false;renderQuiz(document.getElementById('modalInner'))">Play Again</button></div>`;
+    return;
+  }
+  const q = QUIZ[quizIdx]; quizAnswered = false;
+  const correctIdx = Math.floor(Math.random() * 4);
+  const opts = [...q.opts];
+  el.innerHTML = `<h2>🧠 How Well Do You Know Me?</h2>
+    <p style="color:var(--muted);font-size:0.8rem;margin-bottom:14px">Q${quizIdx+1}/${QUIZ.length} · Score: ${quizScore}</p>
+    <div class="quiz-q">${q.q}</div>
+    <div class="quiz-opts">
+      ${opts.map((o,i)=>`<button class="quiz-opt" onclick="quizAns(${i},${correctIdx})">${o}</button>`).join('')}
+    </div>`;
+}
+function quizAns(chosen, correct) {
+  if (quizAnswered) return; quizAnswered = true;
+  const btns = document.querySelectorAll('.quiz-opt');
+  btns[chosen].classList.add(chosen===correct?'correct':'wrong');
+  btns[correct].classList.add('correct');
+  if (chosen===correct) quizScore++;
+  setTimeout(() => { quizIdx++; renderQuiz(document.getElementById('modalInner')); }, 900);
+}
+
+function renderTOD(el) {
+  el.innerHTML = `<h2>🎲 Truth or Dare</h2>
+    <div class="tod-toggle">
+      <button class="tod-btn active" id="tBtn" onclick="setTOD('truth')">🤍 Truth</button>
+      <button class="tod-btn" id="dBtn" onclick="setTOD('dare')">🔥 Dare</button>
+    </div>
+    <div class="tod-card" id="todCard">${rnd(TRUTHS)}</div>
+    <div style="text-align:center"><button class="btn-primary" onclick="newTOD()">New Card 🎲</button></div>`;
+}
+function setTOD(m) {
+  todMode = m;
+  document.getElementById('tBtn').classList.toggle('active', m==='truth');
+  document.getElementById('dBtn').classList.toggle('active', m==='dare');
+  newTOD();
+}
+function newTOD() { document.getElementById('todCard').textContent = rnd(todMode==='truth'?TRUTHS:DARES); }
+
+function renderBottle(el) {
+  const players = ['💃 Partner 1','🕺 Partner 2','😄 Friend 1','😊 Friend 2'];
+  el.innerHTML = `<h2>🍾 Spin the Bottle</h2>
+    <div class="bottle-wrap">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center">
+        ${players.map(p=>`<span style="padding:5px 12px;border-radius:50px;background:var(--rose-soft);color:var(--rose);font-size:0.78rem;font-weight:600">${p}</span>`).join('')}
+      </div>
+      <svg id="bottleSvg" viewBox="0 0 100 100" style="width:110px;height:110px;cursor:pointer;transition:transform 3s cubic-bezier(0.17,0.67,0.35,1)">
+        <ellipse cx="50" cy="76" rx="21" ry="11" fill="#c9944a" opacity="0.25"/>
+        <rect x="37" y="29" width="26" height="52" rx="13" fill="#c9944a"/>
+        <rect x="43" y="16" width="14" height="22" rx="5" fill="#b07e30"/>
+        <circle cx="50" cy="14" r="5.5" fill="#9a6a1a"/>
+        <rect x="39" y="44" width="22" height="3" rx="1.5" fill="rgba(255,255,255,0.3)"/>
+      </svg>
+      <div class="bottle-result" id="bResult">Tap the bottle to spin! 🍾</div>
+      <button class="btn-primary" onclick="spinBottle()">Spin!</button>
+    </div>`;
+
+  window.spinBottle = function() {
+    if (bottleSpinning) return;
+    bottleSpinning = true;
+    document.getElementById('bResult').textContent = '🌀 Spinning…';
+    bottleAngle += 1440 + Math.random()*720;
+    const svg = document.getElementById('bottleSvg');
+    svg.style.transform = `rotate(${bottleAngle}deg)`;
+    setTimeout(() => {
+      bottleSpinning = false;
+      const idx = Math.floor(Math.random()*players.length);
+      document.getElementById('bResult').textContent = '🎯 It landed on ' + players[idx] + '!';
+      spawnHearts(4);
+    }, 3200);
+  };
+}
+
+function renderCountdown(el) {
+  const topic = rnd(COUNTDOWN_TOPICS); let t = 60; countdownRunning = false;
+  el.innerHTML = `<h2>⏰ 60-Second Love Test</h2>
+    <p style="color:var(--muted);font-size:0.85rem;margin-bottom:14px">One person names as many as they can!</p>
+    <div class="cd-topic">${topic}</div>
+    <div class="cd-timer" id="cdT">60</div>
+    <div style="text-align:center">
+      <button class="btn-primary" id="cdStart" onclick="startCD()">Start! ⚡</button>
+      <button class="btn-outline" style="margin-left:8px" onclick="renderCountdown(document.getElementById('modalInner'))">New Topic 🔀</button>
+    </div>`;
+
+  window.startCD = function() {
+    if (countdownRunning) return; countdownRunning = true;
+    document.getElementById('cdStart').disabled = true;
+    const iv = setInterval(() => {
+      t--; document.getElementById('cdT').textContent = t;
+      if (t <= 0) {
+        clearInterval(iv); countdownRunning = false;
+        document.getElementById('cdT').textContent = '🎉';
+        const b = document.getElementById('cdStart');
+        b.textContent = 'Again!'; b.disabled = false;
+        b.onclick = () => renderCountdown(document.getElementById('modalInner'));
+        spawnHearts(8);
+      }
+    }, 1000);
+  };
+}
+
+async function renderMemoryGame(el) {
+  el.innerHTML = `<h2>📖 Memory Lane</h2>
+    <p style="color:var(--muted);font-size:0.85rem;margin-bottom:14px">Build your love timeline 💕 — saved forever</p>
+    <div class="mem-form">
+      <input type="date" id="mDate" style="max-width:155px">
+      <input type="text" id="mText" placeholder="What happened? 🌹" style="flex:2">
+      <button class="btn-primary" style="margin-top:0;white-space:nowrap" onclick="addMemory()">Add ✨</button>
+    </div>
+    <div class="timeline" id="mTimeline"></div>`;
+  renderMemories();
+}
+
+async function addMemory() {
+  const d = document.getElementById('mDate').value;
+  const t = document.getElementById('mText').value.trim();
+  if (!t) return;
+  const item = { date: d || new Date().toISOString().slice(0,10), text: t };
+  const id = await dbAdd('memories', item);
+  item.id = id;
+  memoriesData.push(item);
+  memoriesData.sort((a,b) => new Date(a.date) - new Date(b.date));
+  document.getElementById('mText').value = '';
+  renderMemories();
+  spawnHearts(4);
+  toast('💕 Memory saved!');
+}
+
+function renderMemories() {
+  const tl = document.getElementById('mTimeline');
+  if (!tl) return;
+  tl.innerHTML = memoriesData.length ? memoriesData.map(m => `
+    <div class="tl-item">
+      <div class="tl-date">${m.date}</div>
+      <div class="tl-text">${m.text}</div>
+    </div>`).join('') : '<p style="color:#c0a0b0;font-size:0.84rem">No milestones yet — add your first! 🌸</p>';
+}
+
+function closeModal() { document.getElementById('overlay').classList.remove('open'); countdownRunning = false; }
+function overlayClick(e) { if (e.target === document.getElementById('overlay')) closeModal(); }
+
+// =====================================================================
+// QUESTIONS
+// =====================================================================
+const QS = {
+  fun: [
+    {e:'😂',q:'If you were a pizza topping, which one would you be and why?'},
+    {e:'🐾',q:'What animal best describes our relationship?'},
+    {e:'🎬',q:'Which movie couple are we most like?'},
+    {e:'🌮',q:'If our relationship had a flavour, what would it taste like?'},
+    {e:'🦸',q:'What superpower would you give me and why?'},
+    {e:'🎭',q:'If someone made a movie about us, who would play us?'},
+    {e:'🎵',q:'What\'s 100% our song, even if we haven\'t agreed yet?'},
+    {e:'🌈',q:'What colour is our vibe today?'},
+  ],
+  deep: [
+    {e:'🌊',q:'What\'s something you\'ve never told anyone but would tell me?'},
+    {e:'💭',q:'When you imagine our future, what do you see first?'},
+    {e:'🌙',q:'What\'s your biggest personal fear, and how can I help?'},
+    {e:'🔮',q:'What\'s one belief about love that has changed since we got together?'},
+    {e:'🌿',q:'What do you need more of from this relationship?'},
+    {e:'💎',q:'What\'s the most valuable lesson our relationship has taught you?'},
+    {e:'⚓',q:'What grounds you when things get hard?'},
+    {e:'🕊️',q:'What would you forgive me for, no matter what?'},
+  ],
+  romantic: [
+    {e:'💕',q:'What\'s the exact moment you knew you were falling for me?'},
+    {e:'🌹',q:'What\'s your favourite thing I do without even realising it?'},
+    {e:'✨',q:'When do you feel most loved by me?'},
+    {e:'🥂',q:'What\'s the best date we\'ve ever had?'},
+    {e:'💋',q:'Describe your ideal romantic evening with me.'},
+    {e:'🌸',q:'What\'s something small I do that makes your whole day better?'},
+    {e:'💞',q:'What does home feel like to you — and do I feel like home?'},
+    {e:'🌅',q:'What\'s your favourite time of day to spend with me?'},
+  ],
+  future: [
+    {e:'🔮',q:'Where do you see us in 10 years?'},
+    {e:'🏡',q:'Describe our dream home in 5 words.'},
+    {e:'🌍',q:'Which country would you want us to live in for a year?'},
+    {e:'👨‍👩‍👧',q:'What kind of family do you dream of building?'},
+    {e:'🎯',q:'What\'s one goal you want us to achieve together this year?'},
+    {e:'🧳',q:'Where\'s the first place on our travel bucket list?'},
+    {e:'🌱',q:'How do you want to grow as a person, and how can I support you?'},
+    {e:'💼',q:'What does your dream life look like — and am I in it?'},
+  ],
+  spicy: [
+    {e:'😈',q:'What\'s something you\'ve always wanted to try together but haven\'t mentioned yet?'},
+    {e:'🔥',q:'What\'s the most attractive thing I\'ve done this week?'},
+    {e:'😏',q:'Describe the perfect night in for us in three words.'},
+    {e:'💋',q:'What\'s one place you\'ve always wanted to be kissed?'},
+    {e:'🌶️',q:'What\'s your favourite thing about our physical connection?'},
+    {e:'😍',q:'What outfit of mine drives you completely wild?'},
+    {e:'🎭',q:'If we could play any game together tonight, what would it be?'},
+    {e:'🌙',q:'What\'s something you love about our late nights together?'},
+  ],
+};
+
+function setQCat(cat, btn) {
+  qCat = cat; qIdx = 0;
+  document.querySelectorAll('.q-cat').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  loadQ();
+}
+function loadQ() {
+  const qs = QS[qCat]; const q = qs[qIdx];
+  document.getElementById('qEmoji').textContent = q.e;
+  document.getElementById('qText').textContent = q.q;
+  document.getElementById('qNum').textContent = qIdx+1;
+  document.getElementById('qTotal').textContent = qs.length;
+}
+function nextQ() { qIdx = (qIdx+1) % QS[qCat].length; loadQ(); spawnHearts(2); }
+function prevQ() { qIdx = (qIdx-1+QS[qCat].length) % QS[qCat].length; loadQ(); }
+
+// =====================================================================
+// NOTES
+// =====================================================================
+function selColor(el) {
+  document.querySelectorAll('.cd').forEach(d => d.classList.remove('sel'));
+  el.classList.add('sel');
+  noteColor = el.dataset.c;
+}
+
+async function addNote() {
+  const text = document.getElementById('noteText').value.trim();
+  if (!text) return;
+  const item = {
+    text,
+    color: noteColor,
+    date: new Date().toLocaleDateString('en-ZA', {day:'numeric',month:'short',year:'numeric'})
+  };
+  const id = await dbAdd('notes', item);
+  item.id = id;
+  notesData.unshift(item);
+  document.getElementById('noteText').value = '';
+  renderNotes();
+  spawnHearts(5);
+  toast('💌 Note saved!');
+}
+
+async function deleteNote(id) {
+  await dbDelete('notes', id);
+  notesData = notesData.filter(n => n.id !== id);
+  renderNotes();
+}
+
+function renderNotes() {
+  const grid = document.getElementById('notesGrid');
+  const empty = document.getElementById('notesEmpty');
+  if (!grid) return;
+  grid.innerHTML = '';
+  empty.style.display = notesData.length ? 'none' : 'block';
+  notesData.forEach(n => {
+    const card = document.createElement('div');
+    card.className = 'note-card';
+    card.style.background = n.color;
+    card.innerHTML = `
+      <button class="note-del" onclick="deleteNote(${n.id})">✕</button>
+      <div class="note-content">${n.text.replace(/</g,'&lt;')}</div>
+      <div class="note-date">${n.date}</div>`;
+    grid.appendChild(card);
+  });
+}
+
+// =====================================================================
+// UTILS
+// =====================================================================
+function rnd(arr) { return arr[Math.floor(Math.random()*arr.length)]; }
+</script>
+</body>
+</html>

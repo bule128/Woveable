@@ -1,0 +1,1202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>💕 Us — Our Love Universe</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --rose: #e8526a;
+    --blush: #f7c5cc;
+    --cream: #fdf6f0;
+    --gold: #d4a853;
+    --deep: #2c1a2e;
+    --warm: #7c3a5e;
+    --soft: #f9eef4;
+    --card-bg: rgba(255,255,255,0.85);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--deep);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Background blobs */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 40% at 15% 20%, rgba(232,82,106,0.12) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 60% at 85% 70%, rgba(212,168,83,0.10) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 50% at 50% 50%, rgba(247,197,204,0.15) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* NAV */
+  nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 40px;
+    background: rgba(255,255,255,0.7);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(232,82,106,0.15);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  nav .logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    color: var(--rose);
+    letter-spacing: -0.5px;
+  }
+
+  nav .tabs {
+    display: flex;
+    gap: 6px;
+  }
+
+  nav .tabs button {
+    padding: 8px 18px;
+    border-radius: 50px;
+    border: none;
+    background: transparent;
+    color: var(--deep);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  nav .tabs button.active,
+  nav .tabs button:hover {
+    background: var(--rose);
+    color: white;
+  }
+
+  /* SECTIONS */
+  .section { display: none; padding: 40px 32px; position: relative; z-index: 1; }
+  .section.active { display: block; animation: fadeUp 0.4s ease; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    margin-bottom: 6px;
+    color: var(--deep);
+  }
+  .section-title span { color: var(--rose); font-style: italic; }
+  .section-sub { color: #8a6a7a; font-size: 0.9rem; margin-bottom: 32px; }
+
+  /* ======== COLLAGE ======== */
+  .upload-area {
+    border: 2.5px dashed var(--blush);
+    border-radius: 24px;
+    padding: 48px 32px;
+    text-align: center;
+    background: rgba(255,255,255,0.6);
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-bottom: 32px;
+    position: relative;
+  }
+  .upload-area:hover, .upload-area.drag-over {
+    border-color: var(--rose);
+    background: rgba(232,82,106,0.04);
+    transform: scale(1.01);
+  }
+  .upload-area input[type=file] {
+    position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+  }
+  .upload-icon { font-size: 3rem; margin-bottom: 12px; }
+  .upload-area h3 { font-family: 'Playfair Display', serif; font-size: 1.3rem; margin-bottom: 6px; }
+  .upload-area p { color: #9b8a95; font-size: 0.85rem; }
+
+  .collage-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .collage-item {
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    aspect-ratio: 1;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(44,26,46,0.12);
+    transition: all 0.3s;
+  }
+  .collage-item:hover {
+    transform: scale(1.04) rotate(1deg);
+    box-shadow: 0 8px 32px rgba(232,82,106,0.25);
+    z-index: 2;
+  }
+  .collage-item img,
+  .collage-item video {
+    width: 100%; height: 100%; object-fit: cover;
+  }
+  .collage-item .del-btn {
+    position: absolute; top: 6px; right: 6px;
+    background: rgba(255,255,255,0.9);
+    border: none; border-radius: 50%;
+    width: 26px; height: 26px;
+    font-size: 0.75rem; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; transition: opacity 0.2s;
+    color: var(--rose);
+  }
+  .collage-item:hover .del-btn { opacity: 1; }
+
+  /* Layout chooser */
+  .layout-row {
+    display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;
+  }
+  .layout-btn {
+    padding: 8px 16px; border-radius: 12px;
+    border: 2px solid var(--blush);
+    background: white; cursor: pointer;
+    font-size: 0.8rem; transition: all 0.2s;
+    color: var(--deep);
+  }
+  .layout-btn.active, .layout-btn:hover {
+    border-color: var(--rose); background: var(--rose); color: white;
+  }
+
+  .collage-heart {
+    font-size: 1.4rem;
+    position: absolute;
+    animation: floatHeart 3s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  @keyframes floatHeart {
+    0%, 100% { transform: translateY(0) rotate(-10deg); }
+    50% { transform: translateY(-12px) rotate(10deg); }
+  }
+
+  /* ======== GAMES ======== */
+  .games-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 20px;
+  }
+
+  .game-card {
+    background: var(--card-bg);
+    border-radius: 24px;
+    padding: 28px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    box-shadow: 0 4px 20px rgba(44,26,46,0.08);
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+  .game-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--accent, linear-gradient(135deg, var(--blush), var(--soft)));
+    opacity: 0;
+    transition: opacity 0.3s;
+    z-index: 0;
+  }
+  .game-card:hover::before { opacity: 0.15; }
+  .game-card:hover {
+    border-color: var(--rose);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 36px rgba(232,82,106,0.18);
+  }
+
+  .game-card > * { position: relative; z-index: 1; }
+  .game-emoji { font-size: 2.5rem; margin-bottom: 12px; display: block; }
+  .game-card h3 { font-family: 'Playfair Display', serif; font-size: 1.1rem; margin-bottom: 6px; }
+  .game-card p { font-size: 0.82rem; color: #8a6a7a; line-height: 1.5; }
+  .game-tag {
+    display: inline-block; margin-top: 12px;
+    padding: 4px 12px; border-radius: 50px;
+    background: var(--blush); color: var(--warm);
+    font-size: 0.72rem; font-weight: 500;
+  }
+
+  /* GAME MODAL */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(44,26,46,0.55); backdrop-filter: blur(6px);
+    z-index: 200; align-items: center; justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--cream);
+    border-radius: 28px;
+    padding: 40px;
+    max-width: 520px;
+    width: 90%;
+    max-height: 85vh;
+    overflow-y: auto;
+    position: relative;
+    animation: popIn 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  @keyframes popIn {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+  .modal-close {
+    position: absolute; top: 16px; right: 16px;
+    background: var(--blush); border: none; border-radius: 50%;
+    width: 34px; height: 34px; font-size: 1rem; cursor: pointer;
+    color: var(--warm); transition: background 0.2s;
+  }
+  .modal-close:hover { background: var(--rose); color: white; }
+  .modal h2 { font-family: 'Playfair Display', serif; font-size: 1.5rem; margin-bottom: 20px; }
+
+  /* Would You Rather */
+  .wyr-options {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px;
+  }
+  .wyr-btn {
+    padding: 20px 16px; border-radius: 18px; border: 2.5px solid var(--blush);
+    background: white; cursor: pointer; font-size: 0.95rem;
+    line-height: 1.4; text-align: center; transition: all 0.25s;
+    color: var(--deep); font-family: 'DM Sans', sans-serif;
+  }
+  .wyr-btn:hover { border-color: var(--rose); background: var(--soft); transform: scale(1.03); }
+  .wyr-btn.selected { border-color: var(--rose); background: var(--rose); color: white; }
+
+  .wyr-vs {
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Playfair Display', serif; font-style: italic;
+    color: var(--rose); font-size: 0.9rem;
+    position: relative;
+  }
+
+  .btn-primary {
+    display: inline-block; padding: 12px 28px;
+    background: var(--rose); color: white; border: none;
+    border-radius: 50px; cursor: pointer;
+    font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 500;
+    transition: all 0.2s; margin-top: 16px;
+  }
+  .btn-primary:hover { background: var(--warm); transform: scale(1.03); }
+
+  /* Quiz */
+  .quiz-q { font-size: 1.05rem; font-weight: 500; margin-bottom: 16px; line-height: 1.5; }
+  .quiz-options { display: flex; flex-direction: column; gap: 10px; }
+  .quiz-opt {
+    padding: 12px 18px; border-radius: 14px; border: 2px solid var(--blush);
+    background: white; cursor: pointer; text-align: left;
+    font-family: 'DM Sans', sans-serif; font-size: 0.9rem; transition: all 0.2s;
+    color: var(--deep);
+  }
+  .quiz-opt:hover { border-color: var(--rose); background: var(--soft); }
+  .quiz-opt.correct { border-color: #3dbf7a; background: #e6f9ef; color: #1a6b40; }
+  .quiz-opt.wrong { border-color: var(--rose); background: #fde8ec; color: var(--rose); }
+
+  .score-display {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem; text-align: center; margin: 20px 0;
+    color: var(--rose);
+  }
+
+  /* Truth or Dare */
+  .tod-toggle {
+    display: flex; gap: 10px; margin-bottom: 20px;
+  }
+  .tod-btn {
+    flex: 1; padding: 12px; border-radius: 14px; border: 2px solid var(--blush);
+    background: white; cursor: pointer; font-family: 'DM Sans', sans-serif;
+    font-weight: 500; font-size: 0.9rem; transition: all 0.2s; color: var(--deep);
+  }
+  .tod-btn.active { border-color: var(--rose); background: var(--rose); color: white; }
+
+  .tod-card {
+    background: linear-gradient(135deg, var(--soft), white);
+    border-radius: 20px; padding: 28px;
+    text-align: center; font-size: 1.05rem; line-height: 1.6;
+    border: 2px solid var(--blush);
+    min-height: 120px; display: flex; align-items: center; justify-content: center;
+    color: var(--deep);
+  }
+
+  /* Memory Lane */
+  .timeline {
+    position: relative;
+    padding-left: 32px;
+    margin-top: 16px;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute; left: 10px; top: 0; bottom: 0;
+    width: 2px; background: linear-gradient(to bottom, var(--rose), var(--gold));
+  }
+  .timeline-item {
+    position: relative; margin-bottom: 24px;
+    animation: fadeUp 0.4s ease both;
+  }
+  .timeline-item::before {
+    content: '💕';
+    position: absolute; left: -28px; top: 0;
+    font-size: 0.85rem;
+  }
+  .timeline-item .date {
+    font-size: 0.75rem; color: var(--rose); font-weight: 500;
+    text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;
+  }
+  .timeline-item .memory {
+    background: white; border-radius: 14px; padding: 14px 16px;
+    font-size: 0.9rem; box-shadow: 0 2px 12px rgba(44,26,46,0.08);
+    line-height: 1.5;
+  }
+
+  .memory-form { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+  .memory-form input {
+    flex: 1; min-width: 120px;
+    padding: 10px 16px; border-radius: 12px;
+    border: 2px solid var(--blush); background: white;
+    font-family: 'DM Sans', sans-serif; font-size: 0.9rem; color: var(--deep);
+    outline: none;
+  }
+  .memory-form input:focus { border-color: var(--rose); }
+
+  /* ======== QUESTIONS ======== */
+  .q-categories { display: flex; gap: 10px; margin-bottom: 24px; flex-wrap: wrap; }
+  .q-cat-btn {
+    padding: 8px 18px; border-radius: 50px;
+    border: 2px solid var(--blush); background: white;
+    cursor: pointer; font-size: 0.82rem; transition: all 0.2s;
+    color: var(--deep);
+  }
+  .q-cat-btn.active, .q-cat-btn:hover {
+    border-color: var(--rose); background: var(--rose); color: white;
+  }
+
+  .question-card {
+    background: white;
+    border-radius: 24px; padding: 36px;
+    text-align: center; min-height: 180px;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    box-shadow: 0 6px 32px rgba(44,26,46,0.10);
+    margin-bottom: 20px;
+    position: relative; overflow: hidden;
+  }
+  .question-card::before {
+    content: '"';
+    font-family: 'Playfair Display', serif;
+    font-size: 8rem; position: absolute;
+    top: -20px; left: 16px; color: var(--blush);
+    opacity: 0.5; line-height: 1;
+  }
+  .question-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.25rem; line-height: 1.6;
+    color: var(--deep); position: relative; z-index: 1;
+    max-width: 380px;
+  }
+  .q-emoji { font-size: 2rem; margin-bottom: 12px; }
+
+  .q-actions { display: flex; gap: 12px; justify-content: center; }
+
+  .btn-outline {
+    padding: 10px 24px; border-radius: 50px;
+    border: 2px solid var(--rose); background: transparent;
+    color: var(--rose); cursor: pointer;
+    font-family: 'DM Sans', sans-serif; font-size: 0.88rem; font-weight: 500;
+    transition: all 0.2s;
+  }
+  .btn-outline:hover { background: var(--rose); color: white; }
+
+  /* ======== LOVE NOTES ======== */
+  .notes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px; margin-bottom: 24px;
+  }
+  .note-card {
+    border-radius: 20px;
+    padding: 24px 20px;
+    min-height: 160px;
+    position: relative;
+    box-shadow: 0 4px 20px rgba(44,26,46,0.12);
+    cursor: pointer;
+    transition: transform 0.3s;
+    display: flex; flex-direction: column;
+    justify-content: space-between;
+  }
+  .note-card:hover { transform: rotate(1.5deg) scale(1.03); }
+  .note-card .note-content {
+    font-size: 0.88rem; line-height: 1.5; color: var(--deep); flex: 1;
+  }
+  .note-card .note-date {
+    font-size: 0.7rem; color: rgba(44,26,46,0.5); margin-top: 10px;
+  }
+  .note-del {
+    position: absolute; top: 10px; right: 10px;
+    background: rgba(255,255,255,0.7); border: none; border-radius: 50%;
+    width: 24px; height: 24px; font-size: 0.7rem;
+    cursor: pointer; opacity: 0; transition: opacity 0.2s;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--rose);
+  }
+  .note-card:hover .note-del { opacity: 1; }
+
+  .note-compose {
+    background: white; border-radius: 20px; padding: 24px;
+    box-shadow: 0 4px 20px rgba(44,26,46,0.08);
+    margin-bottom: 24px;
+  }
+  .note-compose textarea {
+    width: 100%; min-height: 100px; border: 2px solid var(--blush);
+    border-radius: 14px; padding: 14px; font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem; resize: none; outline: none; color: var(--deep);
+    transition: border-color 0.2s;
+  }
+  .note-compose textarea:focus { border-color: var(--rose); }
+  .note-compose-row { display: flex; gap: 10px; margin-top: 10px; align-items: center; }
+  .color-picker { display: flex; gap: 6px; }
+  .color-dot {
+    width: 22px; height: 22px; border-radius: 50%; cursor: pointer;
+    border: 2px solid transparent; transition: border-color 0.2s; flex-shrink: 0;
+  }
+  .color-dot.selected, .color-dot:hover { border-color: var(--deep); }
+
+  /* floating hearts */
+  .floating-hearts {
+    position: fixed; inset: 0; pointer-events: none; z-index: 999; overflow: hidden;
+  }
+  .fh {
+    position: absolute; bottom: -40px; font-size: 1.2rem;
+    animation: riseHeart 4s ease-in forwards;
+    opacity: 0;
+  }
+  @keyframes riseHeart {
+    0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+  }
+
+  /* EMPTY STATE */
+  .empty-state {
+    text-align: center; padding: 60px 20px; color: #b89aa8;
+  }
+  .empty-state .es-icon { font-size: 3rem; margin-bottom: 12px; }
+  .empty-state p { font-size: 0.9rem; }
+
+  /* Spinning Bottle */
+  .bottle-wrap {
+    display: flex; flex-direction: column; align-items: center; gap: 20px;
+  }
+  .bottle-svg {
+    width: 120px; height: 120px;
+    transition: transform 0.05s;
+    cursor: pointer;
+  }
+  .bottle-svg.spinning { animation: none; }
+  .player-list { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+  .player-tag {
+    padding: 6px 14px; border-radius: 50px; background: var(--soft);
+    color: var(--warm); font-size: 0.82rem;
+  }
+  .bottle-result {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem; color: var(--rose); text-align: center;
+    min-height: 36px;
+  }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    nav { padding: 12px 16px; }
+    nav .tabs button { padding: 6px 10px; font-size: 0.75rem; }
+    .section { padding: 24px 16px; }
+    .section-title { font-size: 1.5rem; }
+    .wyr-options { grid-template-columns: 1fr; }
+    .modal { padding: 28px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="floating-hearts" id="floatingHearts"></div>
+
+<nav>
+  <div class="logo">💕 Us</div>
+  <div class="tabs">
+    <button class="active" onclick="showTab('collage')">📸 Our Story</button>
+    <button onclick="showTab('games')">🎮 Play</button>
+    <button onclick="showTab('questions')">💬 Discover</button>
+    <button onclick="showTab('notes')">💌 Notes</button>
+  </div>
+</nav>
+
+<!-- ===== COLLAGE ===== -->
+<div id="collage" class="section active">
+  <h2 class="section-title">Our <span>Story</span></h2>
+  <p class="section-sub">Upload your favorite photos & videos — watch your love story come alive ✨</p>
+
+  <div class="layout-row">
+    <span style="font-size:0.82rem;color:#9b8a95;align-self:center;margin-right:4px;">Layout:</span>
+    <button class="layout-btn active" onclick="setLayout('grid',this)">🔲 Grid</button>
+    <button class="layout-btn" onclick="setLayout('masonry',this)">🎨 Mosaic</button>
+    <button class="layout-btn" onclick="setLayout('hearts',this)">💝 Hearts</button>
+    <button class="layout-btn" onclick="setLayout('polaroid',this)">📷 Polaroid</button>
+  </div>
+
+  <div class="upload-area" id="uploadArea">
+    <input type="file" id="fileInput" accept="image/*,video/*" multiple onchange="handleFiles(this.files)">
+    <div class="upload-icon">🌸</div>
+    <h3>Drop your memories here</h3>
+    <p>Photos & Videos • Tap or drag to add ♥</p>
+  </div>
+
+  <div class="collage-grid" id="collageGrid"></div>
+
+  <div id="collageEmpty" class="empty-state">
+    <div class="es-icon">🌷</div>
+    <p>Your beautiful memories will appear here.<br>Start by uploading a photo or video!</p>
+  </div>
+</div>
+
+<!-- ===== GAMES ===== -->
+<div id="games" class="section">
+  <h2 class="section-title">Let's <span>Play</span></h2>
+  <p class="section-sub">Games to make you laugh, blush, and fall even more in love 🎉</p>
+
+  <div class="games-grid">
+    <div class="game-card" onclick="openGame('wyr')">
+      <span class="game-emoji">🤔</span>
+      <h3>Would You Rather?</h3>
+      <p>Make tricky choices and see if you think alike — or totally disagree!</p>
+      <span class="game-tag">💬 Discussion</span>
+    </div>
+    <div class="game-card" onclick="openGame('quiz')">
+      <span class="game-emoji">🧠</span>
+      <h3>How Well Do You Know Me?</h3>
+      <p>Answer questions about each other and score points for every correct guess!</p>
+      <span class="game-tag">🏆 Competitive</span>
+    </div>
+    <div class="game-card" onclick="openGame('tod')">
+      <span class="game-emoji">🎲</span>
+      <h3>Truth or Dare</h3>
+      <p>Romantic truths and sweet dares — keep it fun or spice it up!</p>
+      <span class="game-tag">🔥 Fun</span>
+    </div>
+    <div class="game-card" onclick="openGame('bottle')">
+      <span class="game-emoji">🍾</span>
+      <h3>Spin the Bottle</h3>
+      <p>Classic spin game — whoever it lands on has to complete a challenge!</p>
+      <span class="game-tag">😂 Silly</span>
+    </div>
+    <div class="game-card" onclick="openGame('countdown')">
+      <span class="game-emoji">⏰</span>
+      <h3>60-Second Love Test</h3>
+      <p>Name as many things about each other as you can before time runs out!</p>
+      <span class="game-tag">⚡ Fast</span>
+    </div>
+    <div class="game-card" onclick="openGame('memory')">
+      <span class="game-emoji">📖</span>
+      <h3>Memory Lane</h3>
+      <p>Add milestones to your love timeline — first date, first trip, and beyond!</p>
+      <span class="game-tag">❤️ Sentimental</span>
+    </div>
+  </div>
+</div>
+
+<!-- ===== QUESTIONS ===== -->
+<div id="questions" class="section">
+  <h2 class="section-title"><span>Deep Dive</span> Questions</h2>
+  <p class="section-sub">From silly to soul-searching — explore each other fully 💫</p>
+
+  <div class="q-categories">
+    <button class="q-cat-btn active" onclick="setQCat('fun', this)">😂 Fun</button>
+    <button class="q-cat-btn" onclick="setQCat('deep', this)">🌊 Deep</button>
+    <button class="q-cat-btn" onclick="setQCat('romantic', this)">💕 Romantic</button>
+    <button class="q-cat-btn" onclick="setQCat('future', this)">🔮 Future</button>
+    <button class="q-cat-btn" onclick="setQCat('naughty', this)">😈 Spicy</button>
+  </div>
+
+  <div class="question-card" id="questionCard">
+    <div class="q-emoji" id="qEmoji">😂</div>
+    <div class="question-text" id="questionText">Loading your first question...</div>
+  </div>
+
+  <div class="q-actions">
+    <button class="btn-outline" onclick="prevQuestion()">← Previous</button>
+    <button class="btn-primary" onclick="nextQuestion()">Next Question →</button>
+  </div>
+
+  <div style="margin-top:16px;text-align:center;font-size:0.8rem;color:#b89aa8;">
+    Question <span id="qNum">1</span> of <span id="qTotal">1</span>
+  </div>
+</div>
+
+<!-- ===== NOTES ===== -->
+<div id="notes" class="section">
+  <h2 class="section-title">Love <span>Notes</span></h2>
+  <p class="section-sub">Leave sweet little messages for each other 💌</p>
+
+  <div class="note-compose">
+    <textarea id="noteText" placeholder="Write something sweet... 🌹"></textarea>
+    <div class="note-compose-row">
+      <div class="color-picker" id="colorPicker">
+        <div class="color-dot selected" style="background:#fde8ec" data-color="#fde8ec" onclick="selectColor(this)"></div>
+        <div class="color-dot" style="background:#e8f4fd" data-color="#e8f4fd" onclick="selectColor(this)"></div>
+        <div class="color-dot" style="background:#fdf6e3" data-color="#fdf6e3" onclick="selectColor(this)"></div>
+        <div class="color-dot" style="background:#e9fde8" data-color="#e9fde8" onclick="selectColor(this)"></div>
+        <div class="color-dot" style="background:#f3e8fd" data-color="#f3e8fd" onclick="selectColor(this)"></div>
+      </div>
+      <button class="btn-primary" style="margin-top:0" onclick="addNote()">Post Note 💕</button>
+    </div>
+  </div>
+
+  <div class="notes-grid" id="notesGrid"></div>
+  <div id="notesEmpty" class="empty-state">
+    <div class="es-icon">💌</div>
+    <p>No notes yet! Write your first love note above 🌹</p>
+  </div>
+</div>
+
+<!-- ===== MODAL ===== -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModalIfOutside(event)">
+  <div class="modal" id="modalContent">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div id="modalInner"></div>
+  </div>
+</div>
+
+<script>
+// ====================== STATE ======================
+let media = [];
+let notes = JSON.parse(localStorage.getItem('loveNotes') || '[]');
+let memories = JSON.parse(localStorage.getItem('loveMemories') || '[]');
+let currentLayout = 'grid';
+let selectedNoteColor = '#fde8ec';
+let currentQCat = 'fun';
+let currentQIdx = 0;
+let wyrAnswers = [{}, {}];
+
+// ====================== TABS ======================
+function showTab(tab) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById(tab).classList.add('active');
+  document.querySelectorAll('nav .tabs button').forEach((b, i) => {
+    const tabs = ['collage','games','questions','notes'];
+    b.classList.toggle('active', tabs[i] === tab);
+  });
+  if (tab === 'notes') renderNotes();
+  if (tab === 'questions') loadQuestion();
+}
+
+// ====================== COLLAGE ======================
+function handleFiles(files) {
+  Array.from(files).forEach(file => {
+    const url = URL.createObjectURL(file);
+    media.push({ url, type: file.type.startsWith('video') ? 'video' : 'image', name: file.name });
+  });
+  renderCollage();
+  spawnHearts();
+}
+
+function renderCollage() {
+  const grid = document.getElementById('collageGrid');
+  const empty = document.getElementById('collageEmpty');
+  grid.innerHTML = '';
+  empty.style.display = media.length ? 'none' : 'block';
+
+  // Layout styles
+  const layouts = {
+    grid: 'repeat(auto-fill,minmax(160px,1fr))',
+    masonry: 'repeat(auto-fill,minmax(140px,1fr))',
+    hearts: 'repeat(auto-fill,minmax(180px,1fr))',
+    polaroid: 'repeat(auto-fill,minmax(200px,1fr))',
+  };
+  grid.style.gridTemplateColumns = layouts[currentLayout];
+
+  media.forEach((m, i) => {
+    const item = document.createElement('div');
+    item.className = 'collage-item';
+    if (currentLayout === 'polaroid') {
+      item.style.cssText = `border-radius:8px;padding:12px 12px 40px;background:white;box-shadow:0 6px 24px rgba(0,0,0,0.15);transform:rotate(${(i%2===0?1:-1)*((i%3)+0.5)}deg)`;
+      item.style.aspectRatio = 'auto';
+    }
+    if (currentLayout === 'hearts') {
+      item.style.borderRadius = '50% 50% 50% 50% / 60% 60% 40% 40%';
+    }
+    if (currentLayout === 'masonry' && i%3===1) {
+      item.style.gridRow = 'span 2';
+    }
+    if (m.type === 'video') {
+      const vid = document.createElement('video');
+      vid.src = m.url; vid.controls = true; vid.muted = true;
+      item.appendChild(vid);
+    } else {
+      const img = document.createElement('img');
+      img.src = m.url; img.alt = m.name;
+      item.appendChild(img);
+    }
+    const del = document.createElement('button');
+    del.className = 'del-btn'; del.innerHTML = '✕';
+    del.onclick = (e) => { e.stopPropagation(); media.splice(i,1); renderCollage(); };
+    item.appendChild(del);
+    grid.appendChild(item);
+  });
+}
+
+function setLayout(layout, btn) {
+  currentLayout = layout;
+  document.querySelectorAll('.layout-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderCollage();
+}
+
+// Drag over
+const uploadArea = document.getElementById('uploadArea');
+uploadArea.addEventListener('dragover', e => { e.preventDefault(); uploadArea.classList.add('drag-over'); });
+uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('drag-over'));
+uploadArea.addEventListener('drop', e => {
+  e.preventDefault(); uploadArea.classList.remove('drag-over');
+  handleFiles(e.dataTransfer.files);
+});
+
+// ====================== GAMES ======================
+const wyrQ = [
+  { q: "Would you rather…", a: "Have a romantic candlelit dinner at home", b: "Surprise date anywhere in the world" },
+  { q: "Would you rather…", a: "Never fight ever again", b: "Always make up in the most passionate way" },
+  { q: "Would you rather…", a: "Travel the world together for a year", b: "Build your dream home together" },
+  { q: "Would you rather…", a: "Win the lottery but spend it all together", b: "Be poor but always happy together" },
+  { q: "Would you rather…", a: "Know exactly what your partner is thinking", b: "Always know how they're feeling" },
+  { q: "Would you rather…", a: "Re-live your first date every year", b: "Create a brand-new adventure every anniversary" },
+  { q: "Would you rather…", a: "Be serenaded in public by your partner", b: "Receive a heartfelt handwritten letter" },
+];
+let wyrIdx = 0;
+
+const quizQs = [
+  { q: "What is my absolute favourite food?", opts: ["Pizza", "Sushi", "Pasta", "Tacos"], ans: Math.floor(Math.random()*4) },
+  { q: "What is my go-to comfort movie?", opts: ["A rom-com", "An action film", "A horror film", "A documentary"], ans: Math.floor(Math.random()*4) },
+  { q: "If I could visit one place right now, where would it be?", opts: ["Paris", "Bali", "New York", "Tokyo"], ans: Math.floor(Math.random()*4) },
+  { q: "What's my love language?", opts: ["Words of affirmation", "Physical touch", "Acts of service", "Quality time"], ans: Math.floor(Math.random()*4) },
+  { q: "What do I do first thing in the morning?", opts: ["Check my phone", "Make coffee", "Exercise", "Brush teeth immediately"], ans: Math.floor(Math.random()*4) },
+];
+let quizIdx = 0;
+let quizScore = 0;
+let quizAnswered = false;
+
+const truths = [
+  "What's the first thing you noticed about me?",
+  "What's one thing you've never told me that you've been meaning to say?",
+  "What is your favourite memory of us together?",
+  "What song reminds you of me and why?",
+  "If you could change one thing about how we met, what would it be?",
+  "What's your biggest fear about our relationship?",
+  "When did you first realise you loved me?",
+  "What's your favourite physical feature of mine?",
+  "Describe our perfect day together.",
+  "What's something I do that drives you absolutely crazy (in a good way)?",
+];
+const dares = [
+  "Give your partner a 60-second shoulder massage.",
+  "Stare into each other's eyes without laughing for 30 seconds.",
+  "Whisper something you love about them in their ear.",
+  "Re-enact your first meeting exactly as you remember it.",
+  "Write their name in the air with your nose.",
+  "Slow dance together for a full minute — no music needed!",
+  "Tell them 3 things you find incredibly attractive about them.",
+  "Give them the best hug you've ever given.",
+  "Serenade them with any song — even if you can't sing!",
+  "Feed each other something sweet, eyes closed.",
+];
+
+const countdownItems = [
+  "Foods they love", "Things they say all the time", "Their hobbies",
+  "Places they want to visit", "Movies they've watched more than 3 times",
+  "Things that make them laugh", "Their pet peeves", "Their dream jobs growing up",
+];
+
+function openGame(game) {
+  const modal = document.getElementById('modalInner');
+  document.getElementById('modalOverlay').classList.add('open');
+
+  if (game === 'wyr') {
+    wyrIdx = Math.floor(Math.random() * wyrQ.length);
+    renderWYR(modal);
+  } else if (game === 'quiz') {
+    quizIdx = 0; quizScore = 0; quizAnswered = false;
+    renderQuiz(modal);
+  } else if (game === 'tod') {
+    renderTOD(modal);
+  } else if (game === 'bottle') {
+    renderBottle(modal);
+  } else if (game === 'countdown') {
+    renderCountdown(modal);
+  } else if (game === 'memory') {
+    renderMemoryLane(modal);
+  }
+}
+
+function renderWYR(el) {
+  const q = wyrQ[wyrIdx];
+  el.innerHTML = `
+    <h2>🤔 Would You Rather?</h2>
+    <p style="color:#8a6a7a;font-size:0.88rem;margin-bottom:20px">Both pick your answer — then reveal together!</p>
+    <p style="font-weight:500;margin-bottom:12px">${q.q}</p>
+    <div class="wyr-options">
+      <button class="wyr-btn" id="wyrA" onclick="wyrPick('A')">${q.a}</button>
+      <div class="wyr-vs">or</div>
+      <button class="wyr-btn" id="wyrB" onclick="wyrPick('B')">${q.b}</button>
+    </div>
+    <div style="text-align:center">
+      <button class="btn-primary" onclick="wyrNext()">Next Question 🔀</button>
+    </div>
+  `;
+}
+
+function wyrPick(choice) {
+  document.getElementById('wyrA').classList.toggle('selected', choice==='A');
+  document.getElementById('wyrB').classList.toggle('selected', choice==='B');
+}
+function wyrNext() {
+  wyrIdx = (wyrIdx+1) % wyrQ.length;
+  renderWYR(document.getElementById('modalInner'));
+}
+
+function renderQuiz(el) {
+  if (quizIdx >= quizQs.length) {
+    el.innerHTML = `
+      <h2>🧠 Quiz Complete!</h2>
+      <div class="score-display">${quizScore} / ${quizQs.length} 🎉</div>
+      <p style="text-align:center;color:#8a6a7a;font-size:0.9rem">
+        ${quizScore >= 4 ? "You know each other so well — relationship goals! 💕" : "Room to learn more about each other — keep exploring! 🌸"}
+      </p>
+      <div style="text-align:center">
+        <button class="btn-primary" onclick="quizIdx=0;quizScore=0;quizAnswered=false;renderQuiz(document.getElementById('modalInner'))">Play Again</button>
+      </div>`;
+    return;
+  }
+  const q = quizQs[quizIdx];
+  quizAnswered = false;
+  el.innerHTML = `
+    <h2>🧠 How Well Do You Know Me?</h2>
+    <p style="color:#8a6a7a;font-size:0.82rem;margin-bottom:16px">Question ${quizIdx+1} of ${quizQs.length} • Score: ${quizScore}</p>
+    <div class="quiz-q">${q.q}</div>
+    <div class="quiz-options">
+      ${q.opts.map((o,i)=>`<button class="quiz-opt" onclick="quizAnswer(${i},${q.ans})">${o}</button>`).join('')}
+    </div>`;
+}
+
+function quizAnswer(chosen, correct) {
+  if (quizAnswered) return;
+  quizAnswered = true;
+  const btns = document.querySelectorAll('.quiz-opt');
+  btns[chosen].classList.add(chosen===correct ? 'correct' : 'wrong');
+  btns[correct].classList.add('correct');
+  if (chosen===correct) quizScore++;
+  setTimeout(() => { quizIdx++; renderQuiz(document.getElementById('modalInner')); }, 900);
+}
+
+let todMode = 'truth';
+function renderTOD(el) {
+  const getOne = (arr) => arr[Math.floor(Math.random()*arr.length)];
+  el.innerHTML = `
+    <h2>🎲 Truth or Dare</h2>
+    <div class="tod-toggle">
+      <button class="tod-btn active" id="todTruthBtn" onclick="setTOD('truth')">🤍 Truth</button>
+      <button class="tod-btn" id="todDareBtn" onclick="setTOD('dare')">🔥 Dare</button>
+    </div>
+    <div class="tod-card" id="todCard">${getOne(truths)}</div>
+    <div style="text-align:center">
+      <button class="btn-primary" onclick="newTOD()">New Card 🎲</button>
+    </div>`;
+}
+
+function setTOD(mode) {
+  todMode = mode;
+  document.getElementById('todTruthBtn').classList.toggle('active', mode==='truth');
+  document.getElementById('todDareBtn').classList.toggle('active', mode==='dare');
+  newTOD();
+}
+function newTOD() {
+  const arr = todMode==='truth' ? truths : dares;
+  document.getElementById('todCard').textContent = arr[Math.floor(Math.random()*arr.length)];
+}
+
+function renderBottle(el) {
+  const players = ['💃 Partner 1', '🕺 Partner 2', '😄 Friend 1', '😊 Friend 2'];
+  let spinning = false;
+  let angle = 0;
+  el.innerHTML = `
+    <h2>🍾 Spin the Bottle</h2>
+    <div class="bottle-wrap">
+      <div class="player-list">${players.map(p=>`<span class="player-tag">${p}</span>`).join('')}</div>
+      <svg class="bottle-svg" id="bottleSvg" viewBox="0 0 100 100" onclick="spinBottle()" style="cursor:pointer">
+        <ellipse cx="50" cy="75" rx="22" ry="12" fill="#d4a853" opacity="0.3"/>
+        <rect x="38" y="30" width="24" height="50" rx="12" fill="#d4a853"/>
+        <rect x="44" y="18" width="12" height="20" rx="4" fill="#b8902e"/>
+        <circle cx="50" cy="16" r="5" fill="#9a7520"/>
+        <rect x="40" y="42" width="20" height="3" rx="1.5" fill="rgba(255,255,255,0.3)"/>
+        <ellipse cx="50" cy="35" rx="7" ry="3" fill="rgba(255,255,255,0.2)"/>
+      </svg>
+      <div class="bottle-result" id="bottleResult">Tap the bottle to spin! 🍾</div>
+      <button class="btn-primary" onclick="spinBottle()">Spin!</button>
+    </div>`;
+
+  window._bottleAngle = 0;
+  window.spinBottle = function() {
+    if (spinning) return;
+    spinning = true;
+    document.getElementById('bottleResult').textContent = '🌀 Spinning...';
+    const extraSpins = 4 + Math.random()*5;
+    const extraAngle = extraSpins * 360 + Math.floor(Math.random()*360);
+    window._bottleAngle += extraAngle;
+    const svg = document.getElementById('bottleSvg');
+    svg.style.transition = `transform ${2.5+Math.random()}s cubic-bezier(0.17,0.67,0.35,1)`;
+    svg.style.transform = `rotate(${window._bottleAngle}deg)`;
+    setTimeout(() => {
+      spinning = false;
+      const idx = Math.floor(Math.random()*players.length);
+      document.getElementById('bottleResult').textContent = `🎯 It landed on ${players[idx]}!`;
+      spawnHearts();
+    }, 3000);
+  };
+}
+
+let countdownRunning = false;
+function renderCountdown(el) {
+  const item = countdownItems[Math.floor(Math.random()*countdownItems.length)];
+  let timeLeft = 60;
+  el.innerHTML = `
+    <h2>⏰ 60-Second Love Test</h2>
+    <p style="color:#8a6a7a;font-size:0.88rem;margin-bottom:20px">One person names as many as they can!</p>
+    <div style="text-align:center;font-size:1.1rem;font-weight:500;margin-bottom:8px">Topic: <span style="color:var(--rose)">${item}</span></div>
+    <div style="text-align:center;font-size:4rem;font-family:'Playfair Display',serif;color:var(--rose);margin:12px 0" id="cdTimer">60</div>
+    <div style="text-align:center">
+      <button class="btn-primary" id="cdBtn" onclick="startCountdown()">Start! ⚡</button>
+      <button class="btn-outline" style="margin-left:8px" onclick="renderCountdown(document.getElementById('modalInner'))">New Topic 🔀</button>
+    </div>`;
+
+  window.startCountdown = function() {
+    if (countdownRunning) return;
+    countdownRunning = true;
+    document.getElementById('cdBtn').disabled = true;
+    const interval = setInterval(() => {
+      timeLeft--;
+      document.getElementById('cdTimer').textContent = timeLeft;
+      if (timeLeft <= 0) {
+        clearInterval(interval);
+        countdownRunning = false;
+        document.getElementById('cdTimer').textContent = '🎉';
+        document.getElementById('cdBtn').textContent = 'Again!';
+        document.getElementById('cdBtn').disabled = false;
+        document.getElementById('cdBtn').onclick = () => renderCountdown(document.getElementById('modalInner'));
+        spawnHearts();
+      }
+    }, 1000);
+  };
+}
+
+function renderMemoryLane(el) {
+  el.innerHTML = `
+    <h2>📖 Memory Lane</h2>
+    <p style="color:#8a6a7a;font-size:0.88rem;margin-bottom:16px">Add milestones to your love story 💕</p>
+    <div class="memory-form">
+      <input type="date" id="memDate" style="max-width:160px">
+      <input type="text" id="memText" placeholder="What happened? 🌹" style="flex:2">
+      <button class="btn-primary" style="margin-top:0;white-space:nowrap" onclick="addMemory()">Add ✨</button>
+    </div>
+    <div class="timeline" id="memoryTimeline"></div>`;
+
+  renderMemories();
+}
+
+function addMemory() {
+  const d = document.getElementById('memDate').value;
+  const t = document.getElementById('memText').value.trim();
+  if (!t) return;
+  memories.push({ date: d || 'Our Story', text: t });
+  memories.sort((a,b) => new Date(a.date) - new Date(b.date));
+  localStorage.setItem('loveMemories', JSON.stringify(memories));
+  renderMemories();
+  document.getElementById('memText').value = '';
+  spawnHearts();
+}
+
+function renderMemories() {
+  const tl = document.getElementById('memoryTimeline');
+  if (!tl) return;
+  tl.innerHTML = memories.length ? memories.map(m => `
+    <div class="timeline-item">
+      <div class="date">${m.date}</div>
+      <div class="memory">${m.text}</div>
+    </div>`).join('') : '<p style="color:#b89aa8;font-size:0.85rem">No memories yet — add your first milestone! 🌸</p>';
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+  countdownRunning = false;
+}
+function closeModalIfOutside(e) {
+  if (e.target === document.getElementById('modalOverlay')) closeModal();
+}
+
+// ====================== QUESTIONS ======================
+const questions = {
+  fun: [
+    { e:'😂', q:'If you were a pizza topping, which one would you be and why?' },
+    { e:'🐾', q:'What animal best describes our relationship?' },
+    { e:'🎬', q:'Which movie couple are we most like?' },
+    { e:'🌮', q:'If our relationship had a flavour, what would it taste like?' },
+    { e:'🦸', q:'What superpower would you give me and why?' },
+    { e:'🎭', q:'If someone made a movie about us, who would play us?' },
+    { e:'🎵', q:'What song is 100% our song, even if we haven\'t agreed on it yet?' },
+    { e:'🌈', q:'What colour is our vibe today?' },
+  ],
+  deep: [
+    { e:'🌊', q:'What\'s something you\'ve never told anyone but would tell me?' },
+    { e:'💭', q:'When you imagine our future, what do you see first?' },
+    { e:'🌙', q:'What\'s your biggest personal fear, and how can I help?' },
+    { e:'🔮', q:'What\'s one belief about love that has changed since we got together?' },
+    { e:'🌿', q:'What do you need more of from this relationship?' },
+    { e:'💎', q:'What\'s the most valuable lesson our relationship has taught you?' },
+    { e:'⚓', q:'What grounds you when things get hard?' },
+    { e:'🕊️', q:'What would you forgive me for, no matter what?' },
+  ],
+  romantic: [
+    { e:'💕', q:'What\'s the exact moment you knew you were falling for me?' },
+    { e:'🌹', q:'What\'s your favourite thing I do without even realising it?' },
+    { e:'✨', q:'When do you feel most loved by me?' },
+    { e:'🥂', q:'What\'s the best date we\'ve ever had?' },
+    { e:'💋', q:'Describe your ideal romantic evening with me.' },
+    { e:'🌸', q:'What\'s something small I do that makes your whole day better?' },
+    { e:'💞', q:'What does home feel like to you, and do I feel like home?' },
+    { e:'🌅', q:'What\'s your favourite time of day to spend with me?' },
+  ],
+  future: [
+    { e:'🔮', q:'Where do you see us in 10 years?' },
+    { e:'🏡', q:'Describe our dream home in 5 words.' },
+    { e:'🌍', q:'Which country would you want us to live in for a year?' },
+    { e:'👨‍👩‍👧', q:'What kind of family do you dream of building?' },
+    { e:'🎯', q:'What\'s one goal you want us to achieve together this year?' },
+    { e:'🧳', q:'Where\'s the first place on our travel bucket list?' },
+    { e:'🌱', q:'How do you want to grow as a person, and how can I support you?' },
+    { e:'💼', q:'What does your dream life look like — and am I in it?' },
+  ],
+  naughty: [
+    { e:'😈', q:'What\'s something you\'ve always wanted to try together but haven\'t mentioned yet?' },
+    { e:'🔥', q:'What\'s the most attractive thing I\'ve done this week?' },
+    { e:'😏', q:'Describe the perfect night in for us in three words.' },
+    { e:'💋', q:'What\'s one place you\'ve always wanted to be kissed?' },
+    { e:'🌶️', q:'What\'s your favourite thing about our physical connection?' },
+    { e:'😍', q:'What outfit of mine drives you completely wild?' },
+    { e:'🎭', q:'If we could play any game together tonight, what would it be?' },
+    { e:'🌙', q:'What\'s something you love about our late nights together?' },
+  ],
+};
+
+function setQCat(cat, btn) {
+  currentQCat = cat;
+  currentQIdx = 0;
+  document.querySelectorAll('.q-cat-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  loadQuestion();
+}
+
+function loadQuestion() {
+  const qs = questions[currentQCat];
+  const q = qs[currentQIdx];
+  document.getElementById('qEmoji').textContent = q.e;
+  document.getElementById('questionText').textContent = q.q;
+  document.getElementById('qNum').textContent = currentQIdx+1;
+  document.getElementById('qTotal').textContent = qs.length;
+}
+
+function nextQuestion() {
+  const qs = questions[currentQCat];
+  currentQIdx = (currentQIdx+1) % qs.length;
+  loadQuestion();
+  spawnHearts(2);
+}
+function prevQuestion() {
+  const qs = questions[currentQCat];
+  currentQIdx = (currentQIdx-1+qs.length) % qs.length;
+  loadQuestion();
+}
+
+// ====================== NOTES ======================
+function selectColor(el) {
+  document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedNoteColor = el.dataset.color;
+}
+
+function addNote() {
+  const text = document.getElementById('noteText').value.trim();
+  if (!text) return;
+  notes.unshift({ text, color: selectedNoteColor, date: new Date().toLocaleDateString('en-ZA', {day:'numeric',month:'short',year:'numeric'}) });
+  localStorage.setItem('loveNotes', JSON.stringify(notes));
+  document.getElementById('noteText').value = '';
+  renderNotes();
+  spawnHearts();
+}
+
+function deleteNote(i) {
+  notes.splice(i,1);
+  localStorage.setItem('loveNotes', JSON.stringify(notes));
+  renderNotes();
+}
+
+function renderNotes() {
+  const grid = document.getElementById('notesGrid');
+  const empty = document.getElementById('notesEmpty');
+  grid.innerHTML = '';
+  empty.style.display = notes.length ? 'none' : 'block';
+  notes.forEach((n,i) => {
+    const card = document.createElement('div');
+    card.className = 'note-card';
+    card.style.background = n.color;
+    card.innerHTML = `
+      <button class="note-del" onclick="deleteNote(${i})">✕</button>
+      <div class="note-content">${n.text}</div>
+      <div class="note-date">${n.date}</div>`;
+    grid.appendChild(card);
+  });
+}
+
+// ====================== HEARTS ======================
+function spawnHearts(count=6) {
+  const container = document.getElementById('floatingHearts');
+  const emojis = ['💕','❤️','🌹','✨','💫','💖','🌸','💗'];
+  for (let i=0;i<count;i++) {
+    setTimeout(() => {
+      const h = document.createElement('div');
+      h.className='fh';
+      h.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+      h.style.left = 10+Math.random()*80+'%';
+      h.style.animationDelay = Math.random()*0.5+'s';
+      h.style.fontSize = 0.8+Math.random()*1.2+'rem';
+      container.appendChild(h);
+      setTimeout(()=>h.remove(), 4500);
+    }, i*120);
+  }
+}
+
+// ====================== INIT ======================
+renderCollage();
+renderNotes();
+loadQuestion();
+</script>
+</body>
+</html>
